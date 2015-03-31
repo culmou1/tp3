@@ -8,6 +8,7 @@
 
 /*----------------Bibliothèque----------------*/
 #include <iostream>
+#include <string>
 #include <fstream>
 #include "Header.h"
 using namespace std;
@@ -18,113 +19,120 @@ void enrFichier(string);
 
 /*----------------Classe----------------*/
 ABR :: ABR(){
-    racine = NULL;
+	racine = NULL;
 }
 
 ABR ::~ABR(){
-    racine = NULL;
+    delete racine;
 }
 
-void ABR ::Inserer(noeud *racine, int d){
-    if (racine == NULL){
-        noeud *racine = new noeud;
-        racine->valeur=d;
-        racine->gauche=NULL;
-        racine->droit=NULL;
+noeud* ABR::getRacine () {
+	return racine;
+}
+
+void ABR ::Inserer(noeud *&racine, int d){
+	if (racine == NULL){
+       racine = new noeud;
+	   racine->valeur = d;
+	   racine->droit = NULL;
+	   racine->gauche = NULL;
     }
-    
-    if (racine->valeur >= d){
-        Inserer(racine->gauche,d);
+    else if (d <= racine->valeur) 
+		Inserer (racine->gauche, d);
+	else 
+		Inserer (racine->droit, d);   
+}
+
+void ABR::Supprimer(noeud *&racine, int d){
+    if ( racine == NULL )
+		cout << d << "n'est pas dans l'arbre \n";
+    else if (d < racine->valeur){
+		Supprimer(racine->gauche, d);
+	}
+	else if (d > racine->valeur){
+		Supprimer(racine->droit,d);
     }
     else {
-        Inserer(racine->droit,d);
-    }
+		if (racine->gauche==NULL && racine->droit==NULL ) {
+			delete racine;
+		}
+		else if (racine->gauche == NULL){
+			racine = racine->droit;
+		}
+		else if (racine->droit == NULL) {
+			racine = racine->gauche;
+		}
+		else {
+			noeud *tamp = SupprimerMin (racine->droit);
+			racine->valeur = tamp->valeur;
+			Supprimer (tamp, tamp->valeur);
+		}
+	}
 }
-//    noeud *feuille = new noeud;
-//    feuille->valeur=d;
-//    if (racine == NULL){
-//        racine = feuille;
-//    };
-//    
-//    noeud *courant = new noeud; // créer une nouvelle structure
-//    courant = racine;
-//    noeud *parent = new noeud; // créer une nouvelle structure
-//    while(courant != NULL)
-//    {
-//        parent = courant;
-//        if(d <= courant->valeur)
-//        {
-//            courant = courant->gauche;
-//            
-//        } else
-//        {
-//            courant= courant->droit;
-//            
-//        }
-//    }
-//    
-//    //courant = feuille;
-//    if(feuille->valeur <= parent->valeur)
-//        parent->gauche=feuille;
-//    else
-//        parent->droit=feuille;
-//
-void ABR::Supprimer(noeud *racine, int d){
+
+noeud* ABR :: SupprimerMin(noeud *&racine){
+	if ( racine->gauche != NULL ) // on continue à gauche
+		return
+		SupprimerMin (racine->gauche) ;
+	else // le minimum est trouvé à ce stade
+		return racine;
+} 
     
-        if ( racine == NULL )
-            cout << d << "n'est pas dans l'arbre \n";
-        else if (d < racine->valeur){
-            Supprimer(racine->gauche, d);
-        }
-        else if (d > racine->valeur){
-            Supprimer(racine->droit,d);
-        }
-        else {
-            if (racine->gauche==NULL && racine->droit==NULL ) {
-                delete racine;
-            }
-            
-            else if (racine->gauche == NULL){
-                racine = racine->droit;
-            }
-            else if (racine->droit==NULL) {
-                    racine = racine->gauche;
-                }
-            else {
-                noeud *tamp = new noeud;
-                tamp = racine;
-                // À continuer
-                }
-            }
-        }
-void ABR:: Afficher_Arbre(noeud *racine){
 
+
+void ABR:: Afficher_Arbre(noeud *&racine, int niveau){
+	if (racine == NULL) return;
+	else {
+	Afficher_Arbre (racine->gauche, niveau+1);
+
+	cout << "Niveau " << niveau << "->" << racine->valeur << endl;
+
+	Afficher_Arbre (racine->droit, niveau+1);
+	}
 }
 
-noeud ABR :: supprimerMin(noeud *racine){
-    if( racine != NULL ) ; // on vérifie que l'arbre n'est pas vide
-    if ( racine->gauche != NULL ) // on continue à gauche
-    return supprimerMin (racine->gauche) ;
-    else // le minimum est trouvé à ce stade
-    {
-        noeud *temp = new noeud;
-        temp = racine->droit;
-        return *temp ;
-    }
+int ABR ::Afficher_hauteur(noeud *&racine){
+	if (racine == NULL) return -1; 
+	else {
+	int niveauG =1;
+	niveauG += Afficher_hauteur (racine->gauche);
+
+	int niveauD = 1;
+	niveauD += Afficher_hauteur (racine->droit);
+	if (niveauD > niveauG)
+		return niveauD;
+	else 
+		return niveauG;
+	}
 }
-int ABR ::Afficher_hauteur(noeud *racine){
+
+void ABR:: Afficher_Ascendant(noeud *&racine, int d){
 }
-void ABR:: Afficher_Ascendant(noeud *racine, int d){
-}
-void ABR:: Archiver (noeud *racine){
+
+void ABR:: Archiver (noeud *&racine){
 }
 
 
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    return 0;
+int main() {
+   ABR arbre;
+
+   noeud* racine = arbre.getRacine();
+   arbre.Inserer (racine, 3);
+   arbre.Inserer (racine, 4);
+   arbre.Inserer (racine, 5);
+   arbre.Inserer (racine, 6);
+   arbre.Inserer (racine, 7);
+   arbre.Inserer (racine, 10);
+   arbre.Inserer (racine, 2);
+   arbre.Inserer (racine, 0);
+   arbre.Inserer (racine, 11);
+   arbre.Afficher_Arbre (racine, 0);
+
+   cout << arbre.Afficher_hauteur(racine);
+
+   system ("pause");
+   return 0;
 }
 /* -------------------------------------------------------------------------------*/
 /* DESCRIPTION :      Fonction principale du programmme								*/
@@ -133,7 +141,7 @@ int main(int argc, const char * argv[]) {
 /* REMARQUE : 		  Aucune														*/
 /* -------------------------------------------------------------------------------*/
 
-string lireFichier(string lecture ){
+/*string lireFichier(string lecture ){
     ifstream lire(lecture.c_str(), ios::in);
     if  (lire.fail()){
         cout << "Erreur pour l'ouverture du fichier" <<endl;
@@ -153,4 +161,4 @@ string lireFichier(string lecture ){
 };
 
 void enrFichier(string){
-}
+}*/

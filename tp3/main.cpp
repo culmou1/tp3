@@ -9,7 +9,6 @@
 /*----------------Bibliothèque----------------*/
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -19,9 +18,8 @@
 using namespace std;
 
 /*----------------Function----------------*/
-void lireFichier (string lecture, ABR *&tree);
 void printPretty(noeud *root, int level, int indentSpace, ostream& out);
-void enrFichier(string);
+void enrFichier(string seq);
 
 //Struct pour classer par niveau
 struct lvl {
@@ -71,7 +69,7 @@ noeud* ABR :: SupprimerMin(noeud *&racine){
 
 void ABR::Supprimer(noeud *&racine, int d){
     if ( racine == NULL )
-		cout << endl << d << " n'est pas dans l'arbre \n";
+		cout << d << " n'est pas dans l'arbre.";
     else if (d < racine->valeur){
 		Supprimer(racine->gauche, d);
 	}
@@ -94,20 +92,18 @@ void ABR::Supprimer(noeud *&racine, int d){
 }
 
 void ABR:: Afficher_Arbre(noeud *racine, int niveau){
-	vector <lvl> liste;
-	Niveler (racine, liste, niveau);
+	vector <lvl> output;
+	Niveler (racine, output, niveau);
     // Imprime les éléments de la liste Output
-	cout << endl << "-------------- Affichage par niveau --------------" << endl;
 	cout << "Niveau 0 : ";
 	
 	// Répéter aussi longtemps qu’il reste des éléments dans la liste
-	for (int i=0; i <liste.size(); i++) {
-		if (liste[i].niveau > niveau)
-			cout << endl << "Niveau " << liste[i].niveau << " : ";
-		cout << liste[i].valor << " ";
-		niveau = liste[i].niveau;
+	for (int i=0; i <output.size(); i++) {
+		if (output[i].niveau > niveau)
+			cout << endl << "Niveau " << output[i].niveau << " : ";
+		cout << output[i].valor << " ";
+		niveau = output[i].niveau;
 	}
-	cout << endl;
 }
 
 int ABR ::Afficher_hauteur(noeud *racine){
@@ -125,69 +121,84 @@ int ABR ::Afficher_hauteur(noeud *racine){
 	}
 }
 
-/*------------------ BUG A CORRIGER ------------------*/
-void ABR:: Afficher_Ascendant(noeud *racine, int d){
+bool ABR:: Afficher_Ascendant(noeud *racine, int d){
   if (racine == NULL) {
-        cout << endl<< "La valeur n'est pas dans l'arbre" << endl;
-		return;
+		return false;
   }
-  /*else if (getRacine()->valeur == d) {
-	  cout << endl << "La racine de l'arbre ne peut pas avoir d'ascendants !";
-  }*/
-    else if (racine->valeur == d){
-        cout << " Les ascendant du noeud sont :" ;
-    }
-    else
-    {
-        if (racine->valeur < d)
-            Afficher_Ascendant(racine->gauche, d);
-        else
-            Afficher_Ascendant(racine->droit, d);
-        cout << racine->valeur << " ";
-    }
+  if (racine->valeur == d){
+	  cout << "Ascendant(s) de " << d << " : " ;
+	  return true;
+  }
+  else if (Afficher_Ascendant(racine->gauche, d) || Afficher_Ascendant(racine->droit, d)) {
+	  cout << racine->valeur << " ";
+	  return true;
+  }
+  cout <<  d << " n'est pas dans l'arbre.";
+  return false;
 }
 
-void ABR:: Archiver (noeud *racine){
+string ABR:: Archiver (noeud *racine){
+	string temp;
 	if (racine != NULL) {
 		cout << racine->valeur;
-		if (racine->gauche != NULL)
-			 cout << ", ";
-		Archiver (racine->gauche);
-		Archiver (racine->droit);
+		temp += to_string(racine->valeur);
+		if (racine->gauche != NULL) {
+			 cout << " ";
+			 temp += " ";
+		}
+		temp += Archiver (racine->gauche);
+		temp += Archiver (racine->droit);
+		return temp;
 	}
-	else
+	else {
 		cout << "/";
+		temp += "/";
+		return temp;
+	}
 }
 
 void ABR::Instruction(noeud *&racine, char lecture,int valeur){
+    
     switch (lecture) {
-case 'I' : Inserer(racine, valeur);// Appel de la classe
+case 'I' :	cout << endl << "------------------------------- Insertion de " << valeur << " ------------------------------" << endl;
+			Inserer(racine, valeur);// Appel de la classe
     break;
-case 'S': Supprimer(racine, valeur);// Appel de la classe
+case 'S':	cout << endl << "--------------------------- Suppression de valeur  ---------------------------" << endl;
+			Supprimer(racine, valeur);// Appel de la classe
+			cout << endl << "------------------------------------------------------------------------------" << endl;
     break;
-case 'A': Afficher_Arbre(racine, 0);// Appel de la classe
+case 'A':	cout << endl << "---------------------------- Affichage par niveau ----------------------------" << endl;
+			Afficher_Arbre(racine, 0);// Appel de la classe
+			cout << endl << "------------------------------------------------------------------------------" << endl;
     break;
-case 'H' : cout << endl << "La hauteur de l'arbre est : " << Afficher_hauteur(racine) << endl;// Appel de la classe
+case 'H' :	cout << endl << "----------------------------- Hauteur de l'arbre -----------------------------" << endl;
+			cout << "La hauteur de l'arbre est : " << Afficher_hauteur(racine) << endl;// Appel de la classe
+			cout <<  "------------------------------------------------------------------------------" << endl;
     break;
-case 'G' : Afficher_Ascendant(racine, valeur);// Appel de la classe
+case 'G' :	cout << endl << "--------------------------- Ascendant(s) de valeur ---------------------------" << endl;
+			if (racine->valeur == valeur) cout << "La racine n'a pas d'ascendants !";
+			else Afficher_Ascendant(racine, valeur);// Appel de la classe
+			cout << endl << "------------------------------------------------------------------------------" << endl;
     break;
-case 'T' : Archiver(racine);// Appel de la classe
+case 'T' :	cout << endl << "------------------------- Implementation sequentielle ------------------------" << endl;
+			enrFichier(Archiver(racine));// Appel de la classe 
+			cout << "		**ARCHIVE dans imple_seq.txt**";
+			cout << endl << "------------------------------------------------------------------------------" << endl;
     break;
 	}
 }
 
-/*---------------------------------- MAIN ----------------------------------*/
+
 int main() {
    ABR arbre;
 
    noeud* racine = arbre.getRacine();
-   ifstream lire;
    string lecture;
    cout << "Entrer le nom du fichier : "; cin >> lecture;
 	
-   lire.open(lecture.c_str()); // ios:: in lecture seulement
+   ifstream lire(lecture.c_str(), ios::in); // ios:: in lecture seulement
    if  (lire.fail()){
-       cout << "Erreur pour l'ouverture du fichier" <<endl;
+       cerr << "Erreur pour l'ouverture du fichier" <<endl;
    }
    else {
 	   while (!lire.eof()) {// Je vais esseyer un drôle de code
@@ -205,8 +216,9 @@ int main() {
         }
         lire.close();
     }
-   cout << endl << "=================================================================================" << endl;
+   cout << endl << "================================================================================";
    printPretty (racine, 1, 2, cout);
+   cout << endl << "================================================================================" << endl;
 
    system ("pause");
    return 0;
@@ -217,12 +229,14 @@ int main() {
 /* VALEUR DE RETOUR : Aucune 														*/
 /* REMARQUE : 		  Aucune														*/
 /* -------------------------------------------------------------------------------*/
-
-void lireFichier (string lecture, ABR *&tree){
-    
-};
-
-
+void enrFichier(string seq) {
+	ofstream o ("imple_seq.txt", ios::out | ios::trunc);
+	if (o) 
+		o << seq;
+	else 
+		cerr << "Erreur a l'ouverture !";
+	o.close();
+}
 
 void Niveler (noeud*&racine, vector <lvl> &pile_daffichage, int &nv) {
 	bool visited = false;
@@ -256,12 +270,6 @@ int maxHeight(noeud *p) {
   return (leftHeight > rightHeight) ? leftHeight + 1: rightHeight + 1;
 }
 
-// Convert an integer value to string
-string intToString(int val) {
-  ostringstream ss;
-  ss << val;
-  return ss.str();
-}
 // Print the arm branches (eg, /    \ ) on a line
 void printBranches(int branchLen, int nodeSpaceLen, int startLen, int nodesInThisLevel, const deque<noeud*>& nodesQueue, ostream& out) {
   deque<noeud*>::const_iterator iter = nodesQueue.begin();
@@ -277,7 +285,7 @@ void printNodes(int branchLen, int nodeSpaceLen, int startLen, int nodesInThisLe
   deque<noeud*>::const_iterator iter = nodesQueue.begin();
   for (int i = 0; i < nodesInThisLevel; i++, iter++) {
     out << ((i == 0) ? setw(startLen) : setw(nodeSpaceLen)) << "" << ((*iter && (*iter)->gauche) ? setfill('_') : setfill(' '));
-    out << setw(branchLen+2) << ((*iter) ? intToString((*iter)->valeur) : "");
+    out << setw(branchLen+2) << ((*iter) ? to_string((*iter)->valeur) : "");
     out << ((*iter && (*iter)->droit) ? setfill('_') : setfill(' ')) << setw(branchLen) << "" << setfill(' ');
   }
   out << endl;
@@ -287,7 +295,7 @@ void printNodes(int branchLen, int nodeSpaceLen, int startLen, int nodesInThisLe
 void printLeaves(int indentSpace, int level, int nodesInThisLevel, const deque<noeud*>& nodesQueue, ostream& out) {
   deque<noeud*>::const_iterator iter = nodesQueue.begin();
   for (int i = 0; i < nodesInThisLevel; i++, iter++) {
-    out << ((i == 0) ? setw(indentSpace+2) : setw(2*level+2)) << ((*iter) ? intToString((*iter)->valeur) : "");
+    out << ((i == 0) ? setw(indentSpace+2) : setw(2*level+2)) << ((*iter) ? to_string((*iter)->valeur) : "");
   }
   out << endl;
 }

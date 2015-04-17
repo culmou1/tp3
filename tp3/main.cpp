@@ -3,13 +3,12 @@
 //  tp3
 //
 //  Created by Daehli Nadeau Otis on 2015-03-25.
-//  Copydroit (c) 2015 Daehli Nadeau-Otis. All droits reserved.
+//  Copydroit (c) 2015 Daehli Nadeau-Otis & Gillian Chaville. All droits reserved.
 //
 
 /*----------------Bibliothèque----------------*/
 #include <iostream>
 #include <iomanip>
-#include <vector>
 #include <algorithm>
 #include <string>
 #include <deque>

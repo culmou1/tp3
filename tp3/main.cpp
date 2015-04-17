@@ -20,17 +20,6 @@ using namespace std;
 /*----------------Function----------------*/
 void printPretty(noeud *root, int level, int indentSpace, ostream& out);
 void enrFichier(string seq);
-
-//Struct pour classer par niveau
-struct lvl {
-	int valor;
-	int niveau;
-	bool operator < (const lvl& a) const {
-		return niveau < a.niveau;
-	}
-};
-void Niveler (noeud *&racine, vector <lvl> &pile_daffichage, int &nv);
-
 /*----------------Classe----------------*/
 ABR :: ABR(){
 	racine = NULL;
@@ -92,17 +81,12 @@ void ABR::Supprimer(noeud *&racine, int d){
 }
 
 void ABR:: Afficher_Arbre(noeud *racine, int niveau){
-	vector <lvl> output;
-	Niveler (racine, output, niveau);
-    // Imprime les éléments de la liste Output
-	cout << "Niveau 0 : ";
-	
-	// Répéter aussi longtemps qu’il reste des éléments dans la liste
-	for (int i=0; i <output.size(); i++) {
-		if (output[i].niveau > niveau)
-			cout << endl << "Niveau " << output[i].niveau << " : ";
-		cout << output[i].valor << " ";
-		niveau = output[i].niveau;
+	if (racine == NULL) 
+		return;
+	else {
+		Afficher_Arbre (racine->gauche, Afficher_hauteur(racine->gauche));
+		Afficher_Arbre (racine->droit, Afficher_hauteur(racine->droit));
+		cout << "Le niveau de " << racine->valeur << " est : " << niveau << endl; 
 	}
 }
 
@@ -121,20 +105,26 @@ int ABR ::Afficher_hauteur(noeud *racine){
 	}
 }
 
-bool ABR:: Afficher_Ascendant(noeud *racine, int d){
+void ABR:: Afficher_Ascendant(noeud *racine, int d){
   if (racine == NULL) {
-		return false;
+		return;
   }
   if (racine->valeur == d){
 	  cout << "Ascendant(s) de " << d << " : " ;
-	  return true;
+	  return;
   }
-  else if (Afficher_Ascendant(racine->gauche, d) || Afficher_Ascendant(racine->droit, d)) {
-	  cout << racine->valeur << " ";
-	  return true;
+  else if (racine->valeur > d) {
+	  Afficher_Ascendant(racine->gauche, d);
+		  cout << racine->valeur << " ";
+		  return;
+  }
+  else {
+	  Afficher_Ascendant(racine->droit, d);
+		  cout << racine->valeur << " ";
+		  return;
   }
   cout <<  d << " n'est pas dans l'arbre.";
-  return false;
+  return;
 }
 
 string ABR:: Archiver (noeud *racine){
@@ -168,7 +158,7 @@ case 'S':	cout << endl << "--------------------------- Suppression de valeur  --
 			cout << endl << "------------------------------------------------------------------------------" << endl;
     break;
 case 'A':	cout << endl << "---------------------------- Affichage par niveau ----------------------------" << endl;
-			Afficher_Arbre(racine, 0);// Appel de la classe
+			Afficher_Arbre(racine, Afficher_hauteur(racine));// Appel de la classe
 			cout << endl << "------------------------------------------------------------------------------" << endl;
     break;
 case 'H' :	cout << endl << "----------------------------- Hauteur de l'arbre -----------------------------" << endl;
@@ -238,25 +228,6 @@ void enrFichier(string seq) {
 	o.close();
 }
 
-void Niveler (noeud*&racine, vector <lvl> &pile_daffichage, int &nv) {
-	bool visited = false;
-	if (racine == NULL) {
-		nv++;
-		return;
-	}
-	else {
-		Niveler (racine->gauche, pile_daffichage, nv);
-		nv = 0;
-		Niveler (racine->droit, pile_daffichage, nv);
-		if (racine->droit == NULL && racine->gauche == NULL) nv = 0;
-		lvl courant;
-		courant.niveau = nv;
-		courant.valor = racine->valeur;
-		pile_daffichage.push_back (courant);
-		nv++;
-	}
-	sort(pile_daffichage.begin(), pile_daffichage.end());
-}
 
 /*******************************************************************************************************************************/
 /****************************************************MAKE TREE BECOME PRETTY****************************************************/

@@ -3,14 +3,14 @@
 //  tp3
 //
 //  Created by Daehli Nadeau Otis on 2015-03-25.
-//  Copyright (c) 2015 Daehli Nadeau-Otis. All rights reserved.
+//  Copyright (c) 2015 Daehli Nadeau-Otis & Gillian Chaville. All rights reserved.
 //
 
 #ifndef tp3_Header_h
 #define tp3_Header_h
 using namespace std;
 
-struct noeud { // Je croix qu'on pourrait mettre la strucure dans le private de la classe
+struct noeud { 
     int valeur;
     noeud *gauche;
     noeud *droit;

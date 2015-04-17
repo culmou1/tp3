@@ -104,26 +104,29 @@ int ABR ::Afficher_hauteur(noeud *racine){
 	}
 }
 
-void ABR:: Afficher_Ascendant(noeud *racine, int d){
+bool ABR:: Afficher_Ascendant(noeud *racine, int d){
   if (racine == NULL) {
-		return;
+	  cout <<  d << " n'est pas dans l'arbre.";
+		return false;
   }
   if (racine->valeur == d){
 	  cout << "Ascendant(s) de " << d << " : " ;
-	  return;
+	  return true;
   }
   else if (racine->valeur > d) {
-	  Afficher_Ascendant(racine->gauche, d);
+	  if (Afficher_Ascendant(racine->gauche, d)) {
 		  cout << racine->valeur << " ";
-		  return;
+		  return true;
+	  }
   }
   else {
-	  Afficher_Ascendant(racine->droit, d);
+	  if (Afficher_Ascendant(racine->droit, d)) {
 		  cout << racine->valeur << " ";
-		  return;
+		  return true;
+	  }
   }
-  cout <<  d << " n'est pas dans l'arbre.";
-  return;
+  
+  return false;
 }
 
 string ABR:: Archiver (noeud *racine){
